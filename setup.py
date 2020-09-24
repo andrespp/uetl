@@ -5,9 +5,9 @@ with open("README.md", "r") as fh:
 
 setup(
     name='uetl',
-    version='0.0.3',
+    version='0.0.6',
     description='Minimalist python ETL library.',
-    py_modules=["datawarehouse"],
+    py_modules=["uetl"],
     package_dir={'':'src'},
     classifiers=["Programming Language :: Python :: 3",
                  "License :: OSI Approved :: MIT License",

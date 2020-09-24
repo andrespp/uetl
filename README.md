@@ -12,10 +12,10 @@ pip install uetl
 ## Usage
 
 ```python
-import datawarehouse as dw
+import uetl
 import pandas as pd
 
-DWO = dw.DataWarehouse(name='My DataWarehouse',
+DWO = uetl.DataWarehouse(name='My DataWarehouse',
                        dbms='postgres',
                        host='192.168.1.1',
                        port='5432',

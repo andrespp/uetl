@@ -1,4 +1,4 @@
-"""datawarehouse.py
+"""utel.py
 """
 import pandas as pd
 import pandas.io.sql as sqlio
@@ -20,7 +20,7 @@ class DataWarehouse():
         self.user = user
         self.pswd = pswd
 
-    def postgres_conn(self, host, port, dbname, user, pwd):
+    def postgres_conn(self, host, port, dbname, user, pwd, timeout=3):
         """Connects to PostgreSQL database
 
         Parameters
@@ -35,6 +35,8 @@ class DataWarehouse():
                 database user
             pwd : srt
                 database user's password
+            timeout : integer
+                connection timeout (defaults to 3 seconds)
 
         Returns
         -------
@@ -42,8 +44,12 @@ class DataWarehouse():
             Database connection or -1 on error
         """
         conn = \
-            psycopg2.connect("host='{}' port={} dbname='{}'user={} password={}"
-                             .format(host, port, dbname, user, pwd))
+            psycopg2.connect(host=host,
+                             port=port,
+                             database=dbname,
+                             user=user,
+                             password=pwd,
+                             connect_timeout=timeout)
         return conn
 
     def get_conn(self):

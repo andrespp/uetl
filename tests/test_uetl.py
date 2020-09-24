@@ -1,8 +1,8 @@
-import datawarehouse as dw
+import uetl
 import pandas as pd
 
 def test_init():
-    DWO = dw.DataWarehouse(name='My DataWarehouse',
+    DWO = uetl.DataWarehouse(name='My DataWarehouse',
                            dbms='postgres',
                            host='192.168.1.0',
                            port='5432',
