@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='uetl',
-    version='0.0.6',
+    version='0.0.7',
     description='Minimalist python ETL library.',
     py_modules=["uetl"],
     package_dir={'':'src'},

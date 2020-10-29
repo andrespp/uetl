@@ -220,7 +220,7 @@ class DataWarehouse():
             if(verbose): print('table truncated.')
             return True
 
-    def write(self, table_name, df, verbose=False):
+    def write(self, table_name, df, verbose=False, chunksize=None):
         """Write dataframe to table. Dataframe's Index will be used as a column
         named 'table_name'_sk
 
@@ -233,6 +233,10 @@ class DataWarehouse():
             Data to be loaded
 
         verbose : boolean
+
+        chunksize : int, optional
+            Specify the number of rows in each batch to be written at a time.
+            By default, all rows will be written at once.
 
         Returns
         -------
@@ -257,6 +261,7 @@ class DataWarehouse():
                       con=engine,
                       index=True,
                       index_label=sk,
+                      chunksize=chunksize,
                       if_exists='append')
             conn.close()
             if(verbose):
