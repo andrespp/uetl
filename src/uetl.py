@@ -268,7 +268,7 @@ class DataWarehouse():
                 print('{} registries loaded.'.format(len(df)))
             return True
 
-    def write_table(self, table_name, df, verbose=False):
+    def write_table(self, table_name, df, verbose=False, chunksize=None):
         """Write dataframe to table.
         Parameters
         ----------
@@ -279,6 +279,10 @@ class DataWarehouse():
             Data to be loaded
 
         verbose : boolean
+
+        chunksize : int, optional
+            Specify the number of rows in each batch to be written at a time.
+            By default, all rows will be written at once.
 
         Returns
         -------
@@ -301,6 +305,7 @@ class DataWarehouse():
             df.to_sql(name=table_name,
                       con=engine,
                       index=False,
+                      chunksize=chunksize,
                       if_exists='append')
             conn.close()
             if(verbose):
