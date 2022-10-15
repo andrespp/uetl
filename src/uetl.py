@@ -189,13 +189,18 @@ class DataWarehouse():
 
         return True
 
-    def truncate(self, table_name, verbose=False):
+    def truncate(self, table_name, cascade=False, verbose=False):
         """Truncate Table
 
         Parameters
         ----------
             table_name : str
                 Table to be truncated
+
+            cascade : boolean
+                Automatically truncate all tables that have foreign-key
+                references to any of the named tables, or to any tables added
+                to the group due to CASCADE.
 
             verbose : boolean
 
@@ -214,7 +219,10 @@ class DataWarehouse():
             return False
         else:
             cur = conn.cursor()
-            cur.execute('TRUNCATE {}'.format(table_name))
+            if cascade:
+                cur.execute('TRUNCATE {} CASCADE'.format(table_name))
+            else:
+                cur.execute('TRUNCATE {}'.format(table_name))
             conn.commit()
             conn.close()
             if(verbose): print('table truncated.')
