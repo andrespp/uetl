@@ -75,7 +75,7 @@ print(
 )
 ```
 
-#### MS SQL Source Object
+#### Firebird Source Object
 
 ```python
 import uetl
