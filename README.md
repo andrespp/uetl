@@ -75,6 +75,39 @@ print(
 )
 ```
 
+#### MS SQL Source Object
+
+```python
+import uetl
+import pandas as pd
+
+host = '192.168.1.1'
+port = 3050
+base = '/path/to/database.fdb'
+user = 'sysdba'
+pswd = 'masterkey'
+chst = 'latin1'
+
+## 1st example - Using 'with' statement
+with uetl.FirebirdSrc('testdb', host, port, base, user, pswd) as SRC:
+    print(
+        pd.read_sql('SELECT * from rdb$database;', SRC.engine)
+    )
+
+## 2nd example - Create and dispose sqlalchemy engine
+db = uetl.FirebirdSrc('testdb', host, port, base, user, pswd)
+db.create_engine()
+print(
+    pd.read_sql('SELECT * from rdb$database;', db.engine)
+)
+
+## 3rd example - Use MssqlSrc.query()
+db = uetl.FirebirdSrc('testdb', host, port, base, user, pswd)
+print(
+    db.query('SELECT * from rdb$database;')
+)
+```
+
 ## Contributing
 
 To install this package allong with the tools you need to develop and run tests, run the following in your virtualenv:

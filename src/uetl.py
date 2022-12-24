@@ -4,6 +4,7 @@ import pandas as pd
 import pandas.io.sql as sqlio
 import sqlalchemy
 import psycopg2
+import fdb
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 class DataWarehouse():
@@ -439,6 +440,86 @@ class MssqlSrc(DataSrc):
 
     def query(self, query):
         """Query data src. Creates sqlalchemy engine if is not defined yet.
+
+        Parameters
+        ----------
+
+            query | string
+                SQL query
+
+        Returns
+        -------
+            Pandas Dataframe with the resulting table
+        """
+        if not self.engine:
+            self.create_engine()
+
+        return pd.read_sql(query, self.engine)
+
+class FirebirdSrc(DataSrc):
+
+    """FirebirdSrc Class
+
+    Parameters
+    ----------
+
+        name | string
+            Unique name of the object
+
+        host | string
+            server name or ip address
+
+        port | int
+            server port
+
+        dbname | string
+            database path
+
+        user | string
+            database user
+
+        pswd | string
+            database user's password
+
+        chst | charset
+            Charset. Default is 'latin1'
+    """
+
+    def __init__(self, name, host, port, base, user, pswd, chst='latin1'):
+        self.host = host
+        self.port = port
+        self.base = base
+        self.user = user
+        self.pswd = pswd
+        self.chst = chst
+        self.engine = None
+        self.connection = None
+        super().__init__(name, "dbms")
+
+    def __enter__(self):
+        self.create_engine()
+        return self
+
+    def __exit__(self, *args):
+        return self.dispose()
+
+    def create_engine(self):
+        """Create Firebird engine
+        """
+        # fdb
+        conn_str = f'{self.host}/{self.port}:{self.base}'
+        self.engine = fdb.connect(
+            dsn=conn_str, user=self.user, password=self.pswd, charset=self.chst
+        )
+
+        return
+
+    def dispose(self):
+        # self.engine.dispose()
+        return
+
+    def query(self, query):
+        """Query data src. Creates engine if is not defined yet.
 
         Parameters
         ----------
