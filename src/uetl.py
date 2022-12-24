@@ -1,8 +1,8 @@
-"""utel.py
+"""uetl.py
 """
 import pandas as pd
 import pandas.io.sql as sqlio
-from sqlalchemy import create_engine
+import sqlalchemy
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
@@ -257,7 +257,7 @@ class DataWarehouse():
         ## psycopg2
         eng_str = 'postgresql+psycopg2://{}:{}@{}:{}/{}'.format(
             self.user, self.pswd, self.host, self.port, self.base)
-        engine = create_engine(eng_str)
+        engine = sqlalchemy.create_engine(eng_str)
         conn = self.get_conn()
 
         if conn == -1:
@@ -303,7 +303,7 @@ class DataWarehouse():
         ## psycopg2
         eng_str = 'postgresql+psycopg2://{}:{}@{}:{}/{}'.format(
             self.user, self.pswd, self.host, self.port, self.base)
-        engine = create_engine(eng_str)
+        engine = sqlalchemy.create_engine(eng_str)
         conn = self.get_conn()
 
         if conn == -1:
@@ -349,5 +349,112 @@ class DataWarehouse():
 
         return df
 
+class DataSrc():
+    """DataSrc Class
+
+    Parameters
+    ----------
+
+        name | string
+            Unique name of the object
+
+        src_type | string
+            Either file (text file data sources) or dbms (database management
+            systems)
+    """
+
+    def __init__(self, name, src_type):
+
+        self.name = name
+        self.src_type = src_type
+
+class MssqlSrc(DataSrc):
+    """MssqlSrc Class
+
+    Parameters
+    ----------
+
+        name | string
+            Unique name of the object
+
+        host | string
+            server name or ip address
+
+        port | int
+            server port
+
+        dbname | string
+            database name
+
+        user | string
+            database user
+
+        pswd | string
+            database user's password
+
+        instance | string
+            SQL Server instance. Default is 'SQLEXPRESS'
+
+        driver | string
+            ODBC Driver. Default is 'ODBC Driver 18 for SQL Server'
+    """
+
+    def __init__(self, name, host, port, base, user, pswd,
+                inst='SQLEXPRESS', driver='ODBC Driver 18 for SQL Server'):
+        self.host = host
+        self.port = port
+        self.base = base
+        self.inst = inst
+        self.user = user
+        self.pswd = pswd
+        self.driver = driver
+        self.engine = None
+        self.connection = None
+        super().__init__(name, "dbms")
+
+    def __enter__(self):
+        self.create_engine()
+        return self
+
+    def __exit__(self, *args):
+        return self.dispose()
+
+    def create_engine(self):
+        """Create MSSQL Sqlalchemy engine
+        """
+        server = f'{self.host},{self.port}'
+
+        # sqlalchemy
+        conn_str = \
+            f'mssql+pyodbc://{self.user}:{self.pswd}@{server}/{self.base}' \
+            f'?driver={self.driver}&&TrustServerCertificate=yes'
+
+        self.engine = sqlalchemy.create_engine(conn_str)
+
+        return
+
+    def dispose(self):
+        self.engine.dispose()
+        return
+
+    def query(self, query):
+        """Query data src. Creates sqlalchemy engine if is not defined yet.
+
+        Parameters
+        ----------
+
+            query | string
+                SQL query
+
+        Returns
+        -------
+            Pandas Dataframe with the resulting table
+        """
+        if not self.engine:
+            self.create_engine()
+
+        return pd.read_sql(query, self.engine)
+
 if __name__ == '__main__':
-    print('Data Warehouse Class')
+
+    print('uETL Package')
