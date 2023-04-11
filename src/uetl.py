@@ -6,6 +6,7 @@ import sqlalchemy
 import psycopg2
 import fdb
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+from sqlalchemy.sql import text
 
 class DataWarehouse():
     """DataWarehouse class
@@ -107,7 +108,7 @@ class DataWarehouse():
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 
         cur = conn.cursor()
-        cur.execute("CREATE DATABASE {}  ;".format(self.base))
+        cur.execute(text("CREATE DATABASE {}  ;".format(self.base)))
 
         conn.close()
 
@@ -134,12 +135,15 @@ class DataWarehouse():
             return False
         else:
             cur = conn.cursor()
-            cur.execute("""
-              select exists(
+            cur.execute(
+                text(
+                    """ select exists(
                         select *
                         from information_schema.tables
                         where table_name=%s
-                       )""", (table_name,)
+                       )
+                       """, (table_name,)
+                )
             )
             status = cur.fetchone()[0]
             conn.close()
@@ -180,7 +184,7 @@ class DataWarehouse():
                     return False
                 else:
                     cur = conn.cursor()
-                    cur.execute(tables[table])
+                    cur.execute(text(tables[table]))
                     conn.commit()
                     if not self.check_table(table): # Fail to create table
                         print('ERROR: Fail creating tables!')
@@ -221,9 +225,9 @@ class DataWarehouse():
         else:
             cur = conn.cursor()
             if cascade:
-                cur.execute('TRUNCATE {} CASCADE'.format(table_name))
+                cur.execute(text('TRUNCATE {} CASCADE'.format(table_name)))
             else:
-                cur.execute('TRUNCATE {}'.format(table_name))
+                cur.execute(text('TRUNCATE {}'.format(table_name)))
             conn.commit()
             conn.close()
             if(verbose): print('table truncated.')
