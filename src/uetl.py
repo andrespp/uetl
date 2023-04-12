@@ -136,13 +136,12 @@ class DataWarehouse():
         else:
             cur = conn.cursor()
             cur.execute(
-                text(
-                    """ select exists(
-                        select *
-                        from information_schema.tables
-                        where table_name=%s
-                       )
-                       """, (table_name,)
+                text(f"""
+                        select exists(
+                            select * from information_schema.tables
+                            where table_name={table_name}
+                        )
+                    """
                 )
             )
             status = cur.fetchone()[0]
