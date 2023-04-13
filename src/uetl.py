@@ -136,16 +136,12 @@ class DataWarehouse():
         else:
             cur = conn.cursor()
             cur.execute(
-                text(f"""
-                        select exists(
-                            select * from information_schema.tables
-                            where table_name={table_name}
-                        )
-                    """
-                )
+                """select * from information_schema.tables
+                where table_name=%s
+                """,
+                (table_name,)
             )
-            status = cur.fetchone()[0]
-            conn.close()
+            status = bool(cur.rowcount)
         return status
 
     def create_tables(self, tables, verbose=False):
@@ -183,7 +179,7 @@ class DataWarehouse():
                     return False
                 else:
                     cur = conn.cursor()
-                    cur.execute(text(tables[table]))
+                    cur.execute(tables[table])
                     conn.commit()
                     if not self.check_table(table): # Fail to create table
                         print('ERROR: Fail creating tables!')
